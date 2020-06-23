@@ -44,6 +44,7 @@ public abstract class WorldMapGenerator implements Serializable {
     public int zoom = 0, startX = 0, startY = 0, usedWidth, usedHeight;
     protected IntArray startCacheX = new IntArray(8), startCacheY = new IntArray(8);
     protected int zoomStartX = 0, zoomStartY = 0;
+    protected static final double terrainFreq = 1.375, terrainRidgedFreq = 3.1 * 0.5, heatFreq = 2.1, moistureFreq = 2.125, otherFreq = 3.375;
 
     /**
      * A Noise that has a higher frequency than that class defaults to, which is useful for maps here. With the
@@ -53,7 +54,7 @@ public abstract class WorldMapGenerator implements Serializable {
      * than one WorldMapGenerator that uses this field. So you can feel free to use this as a Noise or Noise when
      * generators need one, but don't change it too much, if at all.
      */
-    public static final Noise DEFAULT_NOISE = new Noise(0x1337CAFE, 1f, Noise.SIMPLEX, 1);
+    public static final Noise DEFAULT_NOISE = new Noise(0x1337CAFE, 1f, Noise.SIMPLEX_FRACTAL, 1);
 
     /**
      * Used to implement most of the copy constructor for subclasses; this cannot copy Noise implementations and leaves
@@ -1213,8 +1214,6 @@ public abstract class WorldMapGenerator implements Serializable {
      * <a href="http://squidpony.github.io/SquidLib/SphereWorld.png" >Example map</a>.
      */
     public static class SphereMap extends WorldMapGenerator {
-        protected static final double terrainFreq = 1.45, terrainRidgedFreq = 3.1, heatFreq = 2.1, moistureFreq = 2.125, otherFreq = 3.375;
-        //protected static final double terrainFreq = 1.65, terrainRidgedFreq = 1.8, heatFreq = 2.1, moistureFreq = 2.125, otherFreq = 3.375, riverRidgedFreq = 21.7;
         private double minHeat0 = Double.POSITIVE_INFINITY, maxHeat0 = Double.NEGATIVE_INFINITY,
                 minHeat1 = Double.POSITIVE_INFINITY, maxHeat1 = Double.NEGATIVE_INFINITY,
                 minWet0 = Double.POSITIVE_INFINITY, maxWet0 = Double.NEGATIVE_INFINITY;
@@ -1335,11 +1334,11 @@ public abstract class WorldMapGenerator implements Serializable {
             yPositions = new double[width][height];
             zPositions = new double[width][height];
 
-            terrain = new Noise(seedA, (float) terrainFreq, Noise.SIMPLEX_FRACTAL, (int) (0.5 + octaveMultiplier * 10));
+            terrain = new Noise(seedA, (float) terrainFreq, Noise.FOAM_FRACTAL, (int) (0.5 + octaveMultiplier * 7));
             terrain.setFractalType(Noise.RIDGED_MULTI);
             otherRidged = new Noise(seedB, (float) otherFreq, Noise.FOAM_FRACTAL, (int) (0.5 + octaveMultiplier * 6));
             otherRidged.setFractalType(Noise.RIDGED_MULTI);
-            terrainLayered = new Noise(seedB, (float) terrainRidgedFreq * 0.325f, Noise.SIMPLEX_FRACTAL, (int) (1 + octaveMultiplier * 6), 0.5f, 2f);
+            terrainLayered = new Noise(seedB, (float) terrainRidgedFreq, Noise.FOAM_FRACTAL, (int) (1 + octaveMultiplier * 5));
             heat = new Noise(seedB, (float) heatFreq, Noise.FOAM_FRACTAL, (int) (1 + octaveMultiplier * 3), 0.75f, 1.333f);
             moisture = new Noise(seedB, (float) moistureFreq, Noise.SIMPLEX_FRACTAL, (int) (1 + octaveMultiplier * 4), 0.55f, 1f / 0.55f);
         }
@@ -1582,8 +1581,6 @@ public abstract class WorldMapGenerator implements Serializable {
      * <a href="http://squidpony.github.io/SquidLib/EllipseWorld.png" >Example map</a>.
      */
     public static class EllipticalMap extends WorldMapGenerator {
-        //        protected static final double terrainFreq = 1.35, terrainRidgedFreq = 1.8, heatFreq = 2.1, moistureFreq = 2.125, otherFreq = 3.375, riverRidgedFreq = 21.7;
-        protected static final double terrainFreq = 1.45, terrainRidgedFreq = 3.1, heatFreq = 2.1, moistureFreq = 2.125, otherFreq = 3.375;
         protected double minHeat0 = Double.POSITIVE_INFINITY, maxHeat0 = Double.NEGATIVE_INFINITY,
                 minHeat1 = Double.POSITIVE_INFINITY, maxHeat1 = Double.NEGATIVE_INFINITY,
                 minWet0 = Double.POSITIVE_INFINITY, maxWet0 = Double.NEGATIVE_INFINITY;
@@ -1701,11 +1698,11 @@ public abstract class WorldMapGenerator implements Serializable {
             zPositions = new double[width][height];
             edges = new int[height << 1];
 
-            terrain = new Noise(seedA, (float) terrainFreq, Noise.SIMPLEX_FRACTAL, (int) (0.5 + octaveMultiplier * 10));
+            terrain = new Noise(seedA, (float) terrainFreq, Noise.FOAM_FRACTAL, (int) (0.5 + octaveMultiplier * 7));
             terrain.setFractalType(Noise.RIDGED_MULTI);
             otherRidged = new Noise(seedB, (float) otherFreq, Noise.FOAM_FRACTAL, (int) (0.5 + octaveMultiplier * 6));
             otherRidged.setFractalType(Noise.RIDGED_MULTI);
-            terrainLayered = new Noise(seedB, (float) terrainRidgedFreq * 0.325f, Noise.SIMPLEX_FRACTAL, (int) (1 + octaveMultiplier * 6), 0.5f, 2f);
+            terrainLayered = new Noise(seedB, (float) terrainRidgedFreq, Noise.FOAM_FRACTAL, (int) (1 + octaveMultiplier * 5));
             heat = new Noise(seedB, (float) heatFreq, Noise.FOAM_FRACTAL, (int) (1 + octaveMultiplier * 3), 0.75f, 1.333f);
             moisture = new Noise(seedB, (float) moistureFreq, Noise.SIMPLEX_FRACTAL, (int) (1 + octaveMultiplier * 4), 0.55f, 1f / 0.55f);
         }
@@ -1937,8 +1934,7 @@ public abstract class WorldMapGenerator implements Serializable {
      * from afar</a>
      */
     public static class SpaceViewMap extends WorldMapGenerator {
-        //        protected static final double terrainFreq = 1.65, terrainRidgedFreq = 1.8, heatFreq = 2.1, moistureFreq = 2.125, otherFreq = 3.375, riverRidgedFreq = 21.7;
-        protected static final double terrainFreq = 1.45, terrainRidgedFreq = 3.1, heatFreq = 2.1, moistureFreq = 2.125, otherFreq = 3.375;
+
         protected double minHeat0 = Double.POSITIVE_INFINITY, maxHeat0 = Double.NEGATIVE_INFINITY,
                 minHeat1 = Double.POSITIVE_INFINITY, maxHeat1 = Double.NEGATIVE_INFINITY,
                 minWet0 = Double.POSITIVE_INFINITY, maxWet0 = Double.NEGATIVE_INFINITY;
@@ -2053,11 +2049,11 @@ public abstract class WorldMapGenerator implements Serializable {
             yPositions = new double[width][height];
             zPositions = new double[width][height];
             edges = new int[height << 1];
-            terrain = new Noise(seedA, (float) terrainFreq, Noise.SIMPLEX_FRACTAL, (int) (0.5 + octaveMultiplier * 10));
+            terrain = new Noise(seedA, (float) terrainFreq, Noise.FOAM_FRACTAL, (int) (0.5 + octaveMultiplier * 7));
             terrain.setFractalType(Noise.RIDGED_MULTI);
             otherRidged = new Noise(seedB, (float) otherFreq, Noise.FOAM_FRACTAL, (int) (0.5 + octaveMultiplier * 6));
             otherRidged.setFractalType(Noise.RIDGED_MULTI);
-            terrainLayered = new Noise(seedB, (float) terrainRidgedFreq * 0.325f, Noise.SIMPLEX_FRACTAL, (int) (1 + octaveMultiplier * 6), 0.5f, 2f);
+            terrainLayered = new Noise(seedB, (float) terrainRidgedFreq, Noise.FOAM_FRACTAL, (int) (1 + octaveMultiplier * 5));
             heat = new Noise(seedB, (float) heatFreq, Noise.FOAM_FRACTAL, (int) (1 + octaveMultiplier * 3), 0.75f, 1.333f);
             moisture = new Noise(seedB, (float) moistureFreq, Noise.SIMPLEX_FRACTAL, (int) (1 + octaveMultiplier * 4), 0.55f, 1f / 0.55f);
         }
@@ -2294,7 +2290,7 @@ public abstract class WorldMapGenerator implements Serializable {
      * <a href="">Example map</a>
      */
     public static class HyperellipticalMap extends WorldMapGenerator {
-        protected static final double terrainFreq = 1.45, terrainRidgedFreq = 3.1, heatFreq = 2.1, moistureFreq = 2.125, otherFreq = 3.375;
+
         protected double minHeat0 = Double.POSITIVE_INFINITY, maxHeat0 = Double.NEGATIVE_INFINITY,
                 minHeat1 = Double.POSITIVE_INFINITY, maxHeat1 = Double.NEGATIVE_INFINITY,
                 minWet0 = Double.POSITIVE_INFINITY, maxWet0 = Double.NEGATIVE_INFINITY;
@@ -2442,11 +2438,11 @@ public abstract class WorldMapGenerator implements Serializable {
             yPositions = new double[width][height];
             zPositions = new double[width][height];
             edges = new int[height << 1];
-            terrain = new Noise(seedA, (float) terrainFreq, Noise.SIMPLEX_FRACTAL, (int) (0.5 + octaveMultiplier * 10));
+            terrain = new Noise(seedA, (float) terrainFreq, Noise.FOAM_FRACTAL, (int) (0.5 + octaveMultiplier * 7));
             terrain.setFractalType(Noise.RIDGED_MULTI);
             otherRidged = new Noise(seedB, (float) otherFreq, Noise.FOAM_FRACTAL, (int) (0.5 + octaveMultiplier * 6));
             otherRidged.setFractalType(Noise.RIDGED_MULTI);
-            terrainLayered = new Noise(seedB, (float) terrainRidgedFreq * 0.325f, Noise.SIMPLEX_FRACTAL, (int) (1 + octaveMultiplier * 6), 0.5f, 2f);
+            terrainLayered = new Noise(seedB, (float) terrainRidgedFreq, Noise.FOAM_FRACTAL, (int) (1 + octaveMultiplier * 5));
             heat = new Noise(seedB, (float) heatFreq, Noise.FOAM_FRACTAL, (int) (1 + octaveMultiplier * 3), 0.75f, 1.333f);
             moisture = new Noise(seedB, (float) moistureFreq, Noise.SIMPLEX_FRACTAL, (int) (1 + octaveMultiplier * 4), 0.55f, 1f / 0.55f);
             this.alpha = alpha;
@@ -2699,8 +2695,6 @@ public abstract class WorldMapGenerator implements Serializable {
      * <a href="https://i.imgur.com/nmN6lMK.gifv">Preview image link of a world rotating</a>.
      */
     public static class EllipticalHammerMap extends WorldMapGenerator {
-        //        protected static final double terrainFreq = 1.35, terrainRidgedFreq = 1.8, heatFreq = 2.1, moistureFreq = 2.125, otherFreq = 3.375, riverRidgedFreq = 21.7;
-        protected static final double terrainFreq = 1.45, terrainRidgedFreq = 3.1, heatFreq = 2.1, moistureFreq = 2.125, otherFreq = 3.375;
         protected double minHeat0 = Double.POSITIVE_INFINITY, maxHeat0 = Double.NEGATIVE_INFINITY,
                 minHeat1 = Double.POSITIVE_INFINITY, maxHeat1 = Double.NEGATIVE_INFINITY,
                 minWet0 = Double.POSITIVE_INFINITY, maxWet0 = Double.NEGATIVE_INFINITY;
@@ -2829,11 +2823,11 @@ public abstract class WorldMapGenerator implements Serializable {
             yPositions = new double[width][height];
             zPositions = new double[width][height];
             edges = new int[height << 1];
-            terrain = new Noise(seedA, (float) terrainFreq, Noise.SIMPLEX_FRACTAL, (int) (0.5 + octaveMultiplier * 10));
+            terrain = new Noise(seedA, (float) terrainFreq, Noise.FOAM_FRACTAL, (int) (0.5 + octaveMultiplier * 7));
             terrain.setFractalType(Noise.RIDGED_MULTI);
             otherRidged = new Noise(seedB, (float) otherFreq, Noise.FOAM_FRACTAL, (int) (0.5 + octaveMultiplier * 6));
             otherRidged.setFractalType(Noise.RIDGED_MULTI);
-            terrainLayered = new Noise(seedB, (float) terrainRidgedFreq * 0.325f, Noise.SIMPLEX_FRACTAL, (int) (1 + octaveMultiplier * 6), 0.5f, 2f);
+            terrainLayered = new Noise(seedB, (float) terrainRidgedFreq, Noise.FOAM_FRACTAL, (int) (1 + octaveMultiplier * 5));
             heat = new Noise(seedB, (float) heatFreq, Noise.FOAM_FRACTAL, (int) (1 + octaveMultiplier * 3), 0.75f, 1.333f);
             moisture = new Noise(seedB, (float) moistureFreq, Noise.SIMPLEX_FRACTAL, (int) (1 + octaveMultiplier * 4), 0.55f, 1f / 0.55f);
         }
@@ -3367,8 +3361,6 @@ public abstract class WorldMapGenerator implements Serializable {
      * <a href="http://squidpony.github.io/SquidLib/LocalMap.png" >Example map, showing lack of polar ice</a>
      */
     public static class LocalMap extends WorldMapGenerator {
-        protected static final double terrainFreq = 1.45, terrainRidgedFreq = 3.1, heatFreq = 2.1, moistureFreq = 2.125, otherFreq = 3.375;
-        //protected static final double terrainFreq = 1.65, terrainRidgedFreq = 1.8, heatFreq = 2.1, moistureFreq = 2.125, otherFreq = 3.375, riverRidgedFreq = 21.7;
         protected double minHeat0 = Double.POSITIVE_INFINITY, maxHeat0 = Double.NEGATIVE_INFINITY,
                 minHeat1 = Double.POSITIVE_INFINITY, maxHeat1 = Double.NEGATIVE_INFINITY,
                 minWet0 = Double.POSITIVE_INFINITY, maxWet0 = Double.NEGATIVE_INFINITY;
@@ -3490,11 +3482,11 @@ public abstract class WorldMapGenerator implements Serializable {
             yPositions = new double[width][height];
             zPositions = new double[width][height];
 
-            terrain = new Noise(seedA, (float) terrainFreq, Noise.SIMPLEX_FRACTAL, (int) (0.5 + octaveMultiplier * 10));
+            terrain = new Noise(seedA, (float) terrainFreq, Noise.FOAM_FRACTAL, (int) (0.5 + octaveMultiplier * 7));
             terrain.setFractalType(Noise.RIDGED_MULTI);
             otherRidged = new Noise(seedB, (float) otherFreq, Noise.FOAM_FRACTAL, (int) (0.5 + octaveMultiplier * 6));
             otherRidged.setFractalType(Noise.RIDGED_MULTI);
-            terrainLayered = new Noise(seedB, (float) terrainRidgedFreq * 0.325f, Noise.SIMPLEX_FRACTAL, (int) (1 + octaveMultiplier * 6), 0.5f, 2f);
+            terrainLayered = new Noise(seedB, (float) terrainRidgedFreq, Noise.FOAM_FRACTAL, (int) (1 + octaveMultiplier * 5));
             heat = new Noise(seedB, (float) heatFreq, Noise.FOAM_FRACTAL, (int) (1 + octaveMultiplier * 3), 0.75f, 1.333f);
             moisture = new Noise(seedB, (float) moistureFreq, Noise.SIMPLEX_FRACTAL, (int) (1 + octaveMultiplier * 4), 0.55f, 1f / 0.55f);
         }
