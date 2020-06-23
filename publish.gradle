@@ -1,0 +1,34 @@
+modifyPom {
+    project {
+        name 'worldly'
+        description 'World map and planet view generator using libGDX.'
+        url 'https://github.com/tommyettinger/worldly'
+        inceptionYear '2019'
+
+        scm {
+            url 'https://github.com/tommyettinger/worldly'
+            connection 'scm:https://tommyettinger@github.com/tommyettinger/worldly.git'
+            developerConnection 'scm:git://github.com/tommyettinger/worldly.git'
+        }
+
+        licenses {
+            license {
+                name 'Apache Public License'
+                url 'https://www.apache.org/licenses/LICENSE-2.0.html'
+                distribution 'repo'
+            }
+        }
+
+        developers {
+            developer {
+                id 'tommyettinger'
+                name 'Tommy Ettinger'
+                email 'tommy.ettinger@gmail.com'
+            }
+        }
+    }
+}
+
+nexusStaging {
+    packageGroup = 'com.github.tommyettinger'
+}
