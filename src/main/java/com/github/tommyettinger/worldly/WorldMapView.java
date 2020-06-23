@@ -168,7 +168,7 @@ public class WorldMapView {
                 | (((int) (as + change * (ae - as)) & 0xFE) << 24));
     }
     
-    private static double formCurvedDouble(long start) {
+    public static double formCurvedDouble(long start) {
         return    longBitsToDouble((start >>> 12) | 0x3fe0000000000000L)
                 + longBitsToDouble(((start *= 0x2545F4914F6CDD1DL) >>> 12) | 0x3fe0000000000000L)
                 - longBitsToDouble(((start *= 0x2545F4914F6CDD1DL) >>> 12) | 0x3fe0000000000000L)
