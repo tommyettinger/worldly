@@ -256,7 +256,7 @@ public class WorldMapView {
         float b, diff;
         for (int i = 0; i < 60; i++) {
             b = BIOME_TABLE[i];
-            diff = ((b % 1.0f) - 0.48f) * 0.27f * contrast;
+            diff = ((b - (int)b) - 0.48f) * 0.27f * contrast;
             BIOME_COLOR_TABLE[i] = b = toEditedFloat(biomeColors[(int)b], hue, saturation, brightness + diff, 0f);
             BIOME_DARK_COLOR_TABLE[i] = toEditedFloat(b, 0f, 0f, -0.08f, 0f);
         }
@@ -321,7 +321,7 @@ public class WorldMapView {
         float b, diff;
         for (int i = 0; i < 60; i++) {
             b = BIOME_TABLE[i];
-            diff = ((b % 1.0f) - 0.48f) * 0.27f;
+            diff = ((b - (int)b) - 0.48f) * 0.27f;
             BIOME_COLOR_TABLE[i] = b = toEditedFloat(biomeColors[(int)b], 0f, 0f, diff, 0f);
             BIOME_DARK_COLOR_TABLE[i] = toEditedFloat(b, 0f, 0f, -0.08f, 0f);
         }
@@ -359,7 +359,7 @@ public class WorldMapView {
         float b, diff;
         for (int i = 0; i < 60; i++) {
             b = BIOME_TABLE[i];
-            diff = ((b % 1.0f) - 0.48f) * 0.27f;
+            diff = ((b - (int)b) - 0.48f) * 0.27f;
             BIOME_COLOR_TABLE[i] = b = toEditedFloat(biomeColors[(int)b], 0f, 0f, diff, 0f);
             BIOME_DARK_COLOR_TABLE[i] = toEditedFloat(b, 0f, 0f, -0.08f, 0f);
         }
