@@ -205,7 +205,7 @@ public class WorldMapView {
     public static float woodlandColor = floatGet(122, 170, 90);
     public static float rockyColor = floatGet(171, 175, 145);
     public static float beachColor = floatGet(255, 235, 180);
-    public static float emptyColor = floatGet(34, 32, 52);
+    public static float emptyColor = Color.toFloatBits(0, 0, 0, 0);
 
     // water colors
     public static float deepColor =    floatGet(0, 42, 88);

@@ -27,7 +27,8 @@ public class WorldMapWriter extends ApplicationAdapter {
 //    private static final int width = 512, height = 256; // mimic, elliptical
 //    private static final int width = 1024, height = 512; // mimic, elliptical
 //    private static final int width = 2048, height = 1024; // mimic, elliptical
-    private static final int width = 600, height = 600; // space view
+    private static final int width = 800, height = 800; // space view
+//    private static final int width = 600, height = 600; // space view
 //    private static final int width = 1200, height = 400; // squat
     private static final int LIMIT = 25;
     //private static final int width = 256, height = 128;
@@ -40,7 +41,7 @@ public class WorldMapWriter extends ApplicationAdapter {
     private String makeName()
     {
         sb.setLength(0);
-        for (int i = rng.nextInt(8) + 8; i >= 0; i--) {
+        for (int i = rng.nextInt(7) + 4; i >= 0; i--) {
             sb.append((char)(rng.between('a', 'z'+1)));
         }
         return sb.toString();
@@ -66,13 +67,12 @@ public class WorldMapWriter extends ApplicationAdapter {
         batch = new SpriteBatch();
         view = new StretchViewport(width * cellWidth, height * cellHeight);
         date = DateFormat.getDateInstance().format(new Date());
-        path = "samples/";
+        path = "samples/clear/" + width + "x" + height + "/";
         
-        if(!Gdx.files.local(path).exists())
-            Gdx.files.local(path).mkdirs();
+        Gdx.files.local(path).mkdirs();
         
         pm = new Pixmap(width * cellWidth, height * cellHeight, Pixmap.Format.RGBA8888);
-        pm.setBlending(Pixmap.Blending.None);
+        pm.setBlending(Pixmap.Blending.SourceOver);
         pt = new Texture(pm);
 
         writer = new PixmapIO.PNG((int)(pm.getWidth() * pm.getHeight() * 1.5f)); // Guess at deflated size.
@@ -81,7 +81,7 @@ public class WorldMapWriter extends ApplicationAdapter {
         rng = new SilkRNG(date.hashCode() + Gdx.files.local(path).list().length);
         seed = rng.getState();
 
-        world = new WorldMapGenerator.SpaceViewMap(seed, width, height, WorldMapGenerator.DEFAULT_NOISE, 0.75);
+        world = new WorldMapGenerator.SpaceViewMap(seed, width, height, WorldMapGenerator.DEFAULT_NOISE, 0.9);
         wmv = new WorldMapView(world);
 
         //generate(seed);
@@ -103,14 +103,14 @@ public class WorldMapWriter extends ApplicationAdapter {
         world.rng.setState(seed);
         world.seedA = world.rng.stateA;
         world.seedB = world.rng.stateB;
-        colors[0] = Color.toFloatBits(0.75f + rng.nextFloat(0.05f), 0.6f + rng.nextFloat(0.04f), 0.35f + rng.nextFloat(0.03f), 1f);
+        colors[0] = Color.toFloatBits(0.75f + rng.nextFloat(0.05f), 0.6f + rng.nextFloat(0.04f), 0.38f + rng.nextFloat(0.03f), 1f);
         for (int i = 1; i < colors.length; i++) {
-            colors[i] = WorldMapView.toEditedFloat(colors[i-1], rng.nextFloat(0.04f) - 0.02f, rng.nextFloat(0.1f) - 0.05f, rng.nextFloat(0.16f) - 0.08f, 0f);
+            colors[i] = WorldMapView.toEditedFloat(colors[i-1], rng.nextFloat(0.03f) - 0.015f, rng.nextFloat(0.16f) - 0.08f, rng.nextFloat(0.2f) - 0.1f, 0f);
         }
         wmv.match(colors);
         wmv.generate((int)(seed & 0xFFFFFFFFL), (int) (seed >>> 32),
-                0.9 + WorldMapView.formCurvedDouble((seed ^ 0x123456789ABCDL) * 0x12345689ABL) * 0.3,
-                1.0 + WorldMapView.formCurvedDouble((seed ^ 0xFEDCBA987654321L) * 0xABCDEFABCDEFABCDL) * 0.2);
+                1.5 + WorldMapView.formCurvedDouble((seed ^ 0x123456789ABCDL) * 0x12345689ABL) * 0.3,
+                1.6 + WorldMapView.formCurvedDouble((seed ^ 0xFEDCBA987654321L) * 0xABCDEFABCDEFABCDL) * 0.3);
         ttg = System.currentTimeMillis() - startTime;
     }
 
@@ -124,7 +124,8 @@ public class WorldMapWriter extends ApplicationAdapter {
         //// this is the main part you would want to copy if you want to generate Pixmaps
         generate(name.hashCode());
         float[][] cm = wmv.show();
-        pm.setColor(0x222034FF); // could also be black
+//        pm.setColor(0x222034FF); // could also be black
+        pm.setColor(0); // transparent
         pm.fill();
 
         for (int x = 0; x < width; x++) {
